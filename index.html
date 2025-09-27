@@ -3,22 +3,161 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Your Name Portfolio</title>
+  <meta name="description" content="Naveen Gandla's Cybersecurity Portfolio - Expert in SOC, Incident Response, SIEM, and Cloud Security">
+  <meta name="keywords" content="cybersecurity, SOC, SIEM, cloud security, incident response, Splunk, AWS, Azure, GCP">
+  <title>Naveen Gandla - Cybersecurity Portfolio</title>
+
+  <!-- Tailwind & GSAP -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Link to CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>Hello, I am Your Name</h1>
-  <p>I am a cybersecurity enthusiast. Welcome to my portfolio!</p>
-  
-  <h2>Projects</h2>
-  <ul>
-    <li>Project 1: Description</li>
-    <li>Project 2: Description</li>
-  </ul>
-  
-  <h2>Skills</h2>
-  <p>Python, Splunk, SIEM, Threat Hunting, etc.</p>
-  
-  <h2>Contact</h2>
-  <p>Email: yourname@example.com</p>
+  <!-- Navigation -->
+  <nav class="fixed top-0 left-0 w-full bg-blue/80 backdrop-blur-md z-50">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <a href="#" class="text-2xl font-bold text-blue">Naveen Gandla</a>
+      <div class="space-x-6">
+        <a href="#about" class="text-lg text-gray-300 hover:text-blue">About</a>
+        <a href="#metrics" class="text-lg text-gray-300 hover:text-blue">Metrics</a>
+        <a href="#experience" class="text-lg text-gray-300 hover:text-blue">Experience</a>
+        <a href="#projects" class="text-lg text-gray-300 hover:text-blue">Projects</a>
+        <a href="#certifications" class="text-lg text-gray-300 hover:text-blue">Certifications</a>
+        <a href="#contact" class="text-lg text-blue border border-blue px-4 py-2 rounded hover:bg-blue hover:text-white">Contact</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <header class="hero-bg relative">
+    <div class="scanner"></div>
+    <div class="text-center relative z-10">
+      <h1 class="text-6xl font-extrabold text-blue mb-4">Naveen Gandla</h1>
+      <p class="text-2xl text-gray-200">Cybersecurity Expert | SOC Operations | Incident Response | Cloud Security</p>
+      <p class="text-lg mt-2 text-gray-400">Securing systems, automating defenses, and empowering teams</p>
+      <a href="#contact" class="mt-6 inline-block btn-blue text-white px-8 py-3 rounded-lg hover:bg-blue">Get in Touch</a>
+    </div>
+  </header>
+
+  <!-- About Section -->
+  <section id="about" class="section bg-gray-900">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl font-bold text-center text-blue mb-8">About Me</h2>
+      <div class="flex flex-col md:flex-row items-center gap-8">
+        <img src="https://via.placeholder.com/600x400?text=Cyber+Terminal+Profile" alt="Profile" class="w-full md:w-1/3 rounded-lg shadow-lg">
+        <div>
+          <p class="text-lg">I'm a cybersecurity graduate student (GPA 4.0) with expertise in SOC operations, incident response, SIEM tools (Splunk, QRadar, Sentinel), and cloud security (AWS, Azure, GCP). I specialize in transforming noisy telemetry into actionable insights, automating defenses with Python/PowerShell, and hardening systems with frameworks like NIST CSF and MITRE ATT&CK.</p>
+          <p class="mt-4"><strong>Core Skills:</strong> Threat Hunting, Log Analysis, Vulnerability Management, Phishing Defense, SOAR Automation</p>
+          <p class="mt-2"><strong>Tools:</strong> CrowdStrike, SentinelOne, Carbon Black, Docker, Kubernetes</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Metrics Section -->
+  <section id="metrics" class="section bg-gray-800">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl font-bold text-center text-blue mb-8">Metrics at a Glance</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <div class="metric-card p-6 rounded-lg text-center">
+          <h3 class="text-4xl font-bold text-blue">0</h3>
+          <p class="mt-2">Malicious Events Filtered</p>
+        </div>
+        <div class="metric-card p-6 rounded-lg text-center">
+          <h3 class="text-4xl font-bold text-blue">25%</h3>
+          <p class="mt-2">Security Incident Reduction</p>
+        </div>
+        <div class="metric-card p-6 rounded-lg text-center">
+          <h3 class="text-4xl font-bold text-blue">40%</h3>
+          <p class="mt-2">Misconfiguration Reduction</p>
+        </div>
+        <div class="metric-card p-6 rounded-lg text-center">
+          <h3 class="text-4xl font-bold text-blue">30%</h3>
+          <p class="mt-2">User Adoption Increase</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Experience Section -->
+  <section id="experience" class="section bg-gray-900">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl font-bold text-center text-blue mb-8">Professional Experience</h2>
+      <div class="space-y-8">
+        <!-- Example Job Card -->
+        <div class="card p-8 rounded-lg">
+          <h3 class="text-2xl font-semibold text-blue">Cybersecurity Analyst (Virtual Simulation) · TCS</h3>
+          <p class="text-gray-400">June 2025</p>
+          <ul class="list-disc ml-6 mt-4 text-gray-200">
+            <li>Strengthened access security by defining IAM policy baselines, reducing exceptions by 30%.</li>
+            <li>Enhanced audit readiness with ISO 27001-aligned controls and clear procedures.</li>
+            <li>Accelerated provisioning reviews by 50% with streamlined workflows and decision trees.</li>
+          </ul>
+        </div>
+        <!-- Add more jobs here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects" class="section bg-gray-800">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl font-bold text-center text-blue mb-8">Projects</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card p-6 rounded-lg">
+          <h3 class="text-xl font-semibold text-blue">SOC Automation & SIEM</h3>
+          <p class="mt-2">Virtual SOC with Splunk/ELK: log ingestion, correlation rules, dashboards, and SOAR playbooks.</p>
+          <a href="https://github.com/naveen-gandla/soc-automation" class="text-blue mt-4 inline-block hover:text-gray-200">View Repo</a>
+        </div>
+        <!-- Add more projects here -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Certifications Section -->
+  <section id="certifications" class="section bg-gray-900">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-4xl font-bold text-center text-blue mb-8">Certifications</h2>
+      <table class="w-full mt-8 text-left border-collapse">
+        <thead>
+          <tr class="bg-blue">
+            <th class="p-4">Certification</th>
+            <th class="p-4">Issuing Organization</th>
+            <th class="p-4">Date Earned</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-b border-gray-700">
+            <td class="p-4">CompTIA Security+</td>
+            <td class="p-4">CompTIA</td>
+            <td class="p-4">[Date]</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="section bg-gray-800">
+    <div class="max-w-6xl mx-auto text-center">
+      <h2 class="text-4xl font-bold text-blue mb-8">Connect with Me</h2>
+      <div class="mt-6 flex justify-center space-x-8">
+        <a href="mailto:naveen.gandla@example.com" class="text-blue hover:text-gray-200 text-lg">Email</a>
+        <a href="https://linkedin.com/in/naveen-gandla" class="text-blue hover:text-gray-200 text-lg">LinkedIn</a>
+        <a href="https://github.com/naveen-gandla" class="text-blue hover:text-gray-200 text-lg">GitHub</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-blue text-center py-6">
+    <p class="text-gray-400">&copy; 2025 Naveen Gandla. All rights reserved.</p>
+  </footer>
+
+  <!-- Link to JS -->
+  <script src="script.js"></script>
 </body>
 </html>

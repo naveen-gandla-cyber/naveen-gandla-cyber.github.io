@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Naveen Gandla — Sr. Cybersecurity Analyst Portfolio: SOC, IR, SIEM, Cloud Security" />
+  <title>Naveen Gandla — Cybersecurity Portfolio</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- GSAP (used later in body scripts) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" crossorigin="anonymous"></script>
+  <!-- D3 for MITRE ATT&CK radial (used later in body scripts) -->
+  <script src="https://d3js.org/d3.v7.min.js" crossorigin="anonymous"></script>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root { --blue:#007BFF; --blueLight:#66B2FF; --navGuard: 0px; }
+
+    body { margin: 0; padding: 0; font-family: 'Inter', sans-serif; overflow-x: hidden; background: linear-gradient(135deg, #000000, #001a33); color: #E2E8F0; scroll-behavior: smooth; }
+
+    /* Layout */
+    .container-std { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Sidebar (transparent on top-left) */
+    .sidebar { position: fixed; top:12px; left:12px; width:auto; height:auto; background: transparent; border:0; z-index:50; display:flex; flex-direction:column; align-items:flex-start; gap:8px; padding:0; }
+    .sidebar a { display:inline-block; padding:6px 12px; color:#FFFFFF; text-decoration:none; border-radius:9999px; border:1px solid rgba(102,178,255,0.55); text-shadow: 0 0 8px rgba(255,255,255,.3); background: transparent; }
+    .sidebar a:hover { color:#FFFFFF; border-color: rgba(102,178,255,0.9); background: rgba(102,178,255,0.12); box-shadow: 0 0 10px rgba(102,178,255,0.35); }
+    .content { margin-left:0; }
+    @media (max-width: 1024px) { .content { margin-left: 0; } }
+
+    /* ---- Quote (clean + blue sparkle) ---- */
+    .hero-quote { position: relative; display:inline-block; color: transparent; line-height:1.15; letter-spacing:.2px; }
+    .hero-quote .quote-fill { color:#BBD2FF; font-weight:600; }
+    .hero-quote .quote-stroke { position:absolute; inset:0; color: transparent; -webkit-text-stroke: 1.25px rgba(0,123,255,0.55); text-shadow: 0 0 1px #66B2FF, 0 0 6px rgba(0,123,255,0.35), 0 0 12px rgba(0,123,255,0.22); pointer-events:none; animation: sparkleBlue 3s ease-in-out infinite; }
+    @keyframes sparkleBlue {
+      0%, 100% { text-shadow: 0 0 2px #66B2FF, 0 0 8px rgba(0,123,255,0.45), 0 0 14px rgba(0,123,255,0.30); }
+      50% { text-shadow: 0 0 3px #A8D4FF, 0 0 14px rgba(0,153,255,0.85), 0 0 28px rgba(0,153,255,0.55); }
+    }
+
+    /* HERO */
+    .hero-bg { position: relative; min-height: 100vh; display:flex; align-items:center; background:#000; overflow:hidden; }
+    #matrixCanvas { position:absolute; inset:0; width:100%; height:100%; z-index: 1; }
+    .hero-inner { position:relative; z-index:2; width:100%; padding-left: var(--navGuard); }
+    .hero-grid { display:grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 768px) { .hero-grid { grid-template-columns: auto 1fr; align-items:center; } }
+
+    /* name outline (used under About) */
+    .name-outline { color:#000; -webkit-text-stroke: 0; text-shadow:none; }
+    .hero-title { position: relative; display:inline-block; line-height: 1.05; letter-spacing: .6px; padding-bottom: .25rem; }
+    .hero-title .text-stroke, .hero-title .text-fill { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .hero-title .text-stroke { position:absolute; inset:0; color: transparent; -webkit-text-stroke: 3px var(--blue); text-shadow: 0 0 10px rgba(0,123,255,.6), 0 0 24px rgba(0,123,255,.35); z-index:1; white-space: nowrap; }
+    .hero-title .text-fill { position:relative; color:#000; z-index:2; }
+    .hero-title::after { content:""; position:absolute; left:0; bottom:-8px; width:72px; height:3px; background: linear-gradient(90deg, var(--blue), rgba(0,123,255,0)); box-shadow: 0 0 10px rgba(0,123,255,.7); border-radius:999px; }
+    .hero-subtitle { color:#CFE5FF; font-weight:600; letter-spacing:.2px; text-shadow: 0 0 6px rgba(0,123,255,.25); }
+    .hero-tagline { color:#9DB8FF; font-weight:500; letter-spacing:.2px; }
+
+    /* hero widgets */
+    .hero-widgets { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items:center; justify-content:flex-start; margin-top: 16px; }
+    .widget-card { background: transparent; border: none; border-radius:14px; padding:6px; display:flex; align-items:center; justify-content:center; overflow:visible; }
+    .widget-title { font-size:.85rem; color:#93C5FD; margin-top:6px; text-align:center; opacity:.85 }
+
+    .radar-wrap { width: 280px; height: 280px; position: relative; border-radius: 50%; }
+    #radarMini { width: 100%; height: 100%; display:block; position: relative; z-index: 1; }
+    /* Radar style overlay */
+    .radar-wrap::before { content: ""; position: absolute; inset: 0; border-radius: 50%; background: conic-gradient(rgba(0,123,255,0.3), transparent 90deg); transform: rotate(0deg); animation: rotateRadar 30s linear infinite; box-shadow: 0 0 40px #007bff; z-index: 0; pointer-events: none; }
+
+    #mitre-hero { width: 280px; height: 280px; position: relative; z-index: 2; }
+    #mitre-hero svg { overflow: visible; }
+
+    .nudge-mitre { transform: translateX(-24px); }
+
+    /* responsive tweaks so both widgets stay fully visible */
+    @media (max-width: 640px) {
+      .radar-wrap, #mitre-hero { width: 240px; height: 240px; }
+      .hero-widgets { grid-template-columns: 1fr; }
+      .nudge-mitre { transform:none; }
+    }
+
+    /* Sections */
+    .section { padding: 4rem 1.25rem; position:relative; z-index:2; border-top:1px solid rgba(0,123,255,0.18); }
+    .card { background:#0b1220; border:2px solid var(--blue); border-radius:14px; transition: transform .25s, box-shadow .25s, border-color .25s; }
+    .card:hover { transform:translateY(-6px); box-shadow:0 10px 25px rgba(0,123,255,.35); border-color:#2ea3ff; }
+
+    /* Equal height grids */
+    .grid-equal { display:grid; grid-auto-flow: row; grid-auto-rows: 1fr; }
+    .grid-equal > * { height: 100%; }
+
+    /* Metrics cards — blue shiny border */
+    .metric-card { background:#000; border:2px solid var(--blue); border-radius:14px; padding:24px; text-align:center; box-shadow: 0 0 14px rgba(0,123,255,.45), inset 0 0 10px rgba(0,0,0,.9); position:relative; }
+    .metric-card::after { content:''; position:absolute; inset:0; border-radius:14px; box-shadow: 0 0 22px rgba(0,123,255,.55); pointer-events:none; opacity:.7; }
+    .metric-card:hover { transform: translateY(-4px) scale(1.02); }
+
+    /* Buttons */
+    .btn-blue { background-color: var(--blue); color:#fff; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.25); }
+
+    /* Contact-only transparent (glass) blue buttons */
+    #contact .btn-blue { 
+      background: rgba(0,123,255,0.08); 
+      color: #CFE5FF; 
+      border: 1px solid rgba(0,123,255,0.35); 
+      border-radius:12px; 
+      box-shadow: inset 0 0 8px rgba(0,123,255,0.25), 0 0 12px rgba(0,123,255,0.25); 
+      backdrop-filter: blur(4px); 
+    }
+    #contact .btn-blue:hover { 
+      background: rgba(0,123,255,0.18); 
+      border-color: rgba(0,123,255,0.6); 
+      box-shadow: inset 0 0 10px rgba(0,123,255,0.35), 0 0 16px rgba(0,123,255,0.35); 
+    }
+
+    /* Reusable ghost-blue button (matches contact buttons) */
+    .btn-ghost-blue { 
+      background: rgba(0,123,255,0.08); 
+      color: #CFE5FF; 
+      border: 1px solid rgba(0,123,255,0.35); 
+      border-radius:12px; 
+      box-shadow: inset 0 0 8px rgba(0,123,255,0.25), 0 0 12px rgba(0,123,255,0.25); 
+      backdrop-filter: blur(4px); 
+    }
+    .btn-ghost-blue:hover { 
+      background: rgba(0,123,255,0.18); 
+      border-color: rgba(0,123,255,0.6); 
+      box-shadow: inset 0 0 10px rgba(0,123,255,0.35), 0 0 16px rgba(0,123,255,0.35); 
+    }
+
+    /* Header text typing effect (used in About subtitle) */
+    .typing-effect { font-family:'Fira Code', monospace; white-space:nowrap; overflow:hidden; width:0; animation: typing 3s steps(40,end) forwards 1s; }
+    .typing-effect::after { content:'|'; animation: blink .7s infinite; }
+    @keyframes typing { from{width:0} to{width:100%} }
+    @keyframes blink { 50%{opacity:0} }
+
+    /* Radar sweep rotation */
+    @keyframes rotateRadar { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    /* Mobile menu button (hidden in this design) */
+    #menuBtn { display:none; gap:.5rem; align-items:center; border:1px solid rgba(147,197,253,.35); padding:.5rem .75rem; border-radius:.5rem; color:#93C5FD }
+  </style>
+</head>
+<body>
+  <!-- Sidebar Nav -->
+  <nav class="sidebar" id="sidebar">
+    <a href="#metrics">Metrics</a>
+    <a href="#about">About</a>
+    <a href="#skills">Skills</a>
+    <a href="#education">Education</a>
+    <a href="#experience">Experience</a>
+    <a href="#projects">Projects</a>
+    <a href="#certifications">Certifications</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <div class="content">
+    <!-- Header / Hero -->
+    <header class="hero-bg relative">
+      <!-- Binary Rain Background -->
+      <canvas id="matrixCanvas"></canvas>
+
+      <!-- Left-aligned hero content -->
+      <div class="hero-inner container-std">
+        <div class="hero-grid">
+          <!-- Quote + widgets column -->
+          <div class="pr-4">
+            <p class="hero-quote text-2xl md:text-4xl lg:text-5xl font-semibold max-w-2xl leading-tight mt-2">
+              <span class="quote-stroke" aria-hidden="true">are your logs simply data, OR<br>your organization's first line of defence?</span>
+              <span class="quote-fill">are your logs simply data, OR<br>your organization's first line of defence?</span>
+            </p>
+
+            <!-- Widgets: LEFT Radar, RIGHT MITRE ATT&CK -->
+            <div class="hero-widgets">
+              <div class="flex flex-col items-center">
+                <div class="widget-card"><div class="radar-wrap"><canvas id="radarMini"></canvas></div></div>
+              </div>
+              <div class="flex flex-col items-center nudge-mitre">
+                <div class="widget-card"><div id="mitre-hero" title="Click a node to open related GitHub"></div></div>
+                <div class="widget-title">MITRE ATT&CK</div>
+              </div>
+            </div>
+          </div>
+          <div></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Metrics -->
+    <section id="metrics" class="section">
+      <div class="container-std">
+        <h2 class="text-3xl md:text-4xl font-bold text-[#93C5FD] mb-6">Metrics at a Glance</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 grid-equal">
+          <div class="metric-card"><h3 class="text-3xl font-extrabold text-[#93C5FD]">99%</h3><p class="mt-2">Malicious Events Filtered</p></div>
+          <div class="metric-card"><h3 class="text-3xl font-extrabold text-[#93C5FD]">25%</h3><p class="mt-2">Security Incident Reduction</p></div>
+          <div class="metric-card"><h3 class="text-3xl font-extrabold text-[#93C5FD]">40%</h3><p class="mt-2">Misconfiguration Reduction</p></div>
+          <div class="metric-card"><h3 class="text-3xl font-extrabold text-[#93C5FD]">30%</h3><p class="mt-2">User Adoption Increase</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- About -->
+    <section id="about" class="section">
+      <div class="container-std">
+        <h2 class="text-3xl md:text-4xl font-bold text-[#93C5FD] mb-6">About Me</h2>
+        <div class="about-identity mb-6">
+          <h1 class="hero-title name-outline text-4xl md:text-6xl">
+            <span class="text-stroke" aria-hidden="true">Naveen Gandla</span>
+            <span class="text-fill">Naveen Gandla</span>
+          </h1>
+          <p class="hero-subtitle text-xl md:text-2xl typing-effect">Sr. Cybersecurity Analyst | SOC Operations | Incident Response | Cloud Security</p>
+          <p class="hero-tagline text-base md:text-lg mt-3">Securing systems, automating defenses, and empowering teams</p>
+        </div>
+        <div class="about-horizontal flex flex-row gap-6 items-stretch">
+          <div class="card p-6 flex-1 self-center">
+            <p>Cybersecurity Analyst with 5+ years across Security Operations: threat detection, incident response, and SIEM engineering. Hands‑on with Splunk, QRadar, and Microsoft Sentinel; EDR (CrowdStrike, Defender); IDS/IPS; and vuln management (Nessus, Qualys). Built and tuned detections mapped to MITRE ATT&CK; automated workflows with SOAR; and led phishing and malware triage across hybrid (on‑prem/Azure/AWS) environments.</p>
+            <p class="mt-4"><strong>Technical Skills:</strong> SIEM (Splunk, QRadar, Sentinel), Networking (TCP/IP, IDS/IPS, Wireshark), Scripting (Python, PowerShell, SQL), EDR (CrowdStrike, Microsoft Defender), Cloud (AWS, Azure), Firewalls (Palo Alto/Cisco), Email Security (IronPort, Proofpoint), Frameworks (NIST, CIS, ATT&CK), Ticketing (Jira, ServiceNow).</p>
+            <p class="mt-4"><strong>Highlights:</strong> Reduced mean‑time‑to‑detect/respond, authored runbooks & tabletop exercises, mentored junior analysts, and improved control posture with data‑driven content engineering.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Skills -->
+    <!-- Skills -->
+    <section id="skills" class="section">
+      <div class="container-std">
+        <h2 class="text-3xl md:text-4xl font-bold text-[#93C5FD] mb-6">Skills</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 grid-equal">
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-[#93C5FD]">SIEM & Logging</h3>
+            <p class="mt-2 text-gray-300">Splunk, IBM QRadar, Microsoft Sentinel, ELK</p>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-[#93C5FD]">EDR & Endpoint</h3>
+            <p class="mt-2 text-gray-300">CrowdStrike, Microsoft Defender for Endpoint</p>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-[#93C5FD]">Scripting & Automation</h3>
+            <p class="mt-2 text-gray-300">Python, PowerShell, SQL, SOAR Playbooks</p>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-[#93C5FD]">Networking & Monitoring</h3>
+            <p class="mt-2 text-gray-300">TCP/IP, IDS/IPS, Wireshark</p>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-[#93C5FD]">Cloud & Platforms</h3>
+            <p class="mt-2 text-gray-300">AWS, Azure (CIS hardening, CI/CD checks)</p>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-[#93C5FD]">Email & Messaging Security</h3>
+            <p class="mt-2 text-gray-300">Cisco IronPort, Proofpoint</p>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-[#93C5FD]">Frameworks & Governance</h3>
+            <p class="mt-2 text-gray-300">MITRE ATT&CK, NIST, CIS Benchmarks</p>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-lg font-semibold text-[#93C5FD]">Vulnerability & Ops</h3>
+            <p class="mt-2 text-gray-300">Nessus, Qualys, Jira, ServiceNow</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Education -->
+    <section id="education" class="section bg-[#0b1220]">
+      <div class="container-std">
+        <h2 class="text-3xl md:text-4xl font-bold text-[#93C5FD] mb-6">Education</h2>
+        <div class="grid grid-cols-1 gap-6">
+          <div class="card p-6">
+            <h3 class="text-xl font-semibold text-[#93C5FD]">Master’s in Cybersecurity Operations</h3>
+            <p>Webster University, St. Louis, MO — 07/2023 – 08/2025 — GPA: 3.83/4</p>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-xl font-semibold text-[#93C5FD]">Bachelor of Technology</h3>
+            <p>CJITS (Christu Jyothi Institute of Technology & Science), Telangana, India — 05/2014 – 05/2018</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Experience -->
+    <section id="experience" class="section bg-[#0b1220]">
+      <div class="container-std">
+        <h2 class="text-3xl md:text-4xl font-bold text-[#93C5FD] mb-6">Professional Experience</h2>
+        <div class="space-y-6">
+          <div class="card p-6">
+            <h3 class="text-xl font-semibold text-[#93C5FD]">Sr. Cybersecurity Analyst · State Farm — Bloomington, IL</h3>
+            <p class="text-[#93C5FD]">Oct 2024 – Present</p>
+            <ul class="list-disc ml-6 mt-3 space-y-2">
+              <li>Engineered content for QRadar/Splunk for trending threats; delivered real‑time alerting and ATT&CK‑mapped hunts.</li>
+              <li>Orchestrated customer onboarding into MSSP; ensured resilient integrations and SLA coverage.</li>
+              <li>Maintained SIEM platforms at 90%+ efficiency against SLAs; drove platform modernization with vendors.</li>
+            </ul>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-xl font-semibold text-[#93C5FD]">Cybersecurity Analyst · Principal Financial Group — Des Moines, IA</h3>
+            <p class="text-[#93C5FD]">Apr 2024 – Sep 2024</p>
+            <ul class="list-disc ml-6 mt-3 space-y-2">
+              <li>Led threat‑detection initiatives with SIEM/EDR/TIP; built proactive detections and dashboards.</li>
+              <li>Owned end‑to‑end IR runbooks (ransomware/phishing) aligned with NIST/ISO 27001; ran tabletop exercises.</li>
+              <li>Performed risk assessments; authored policy and control improvements for financial operations.</li>
+            </ul>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-xl font-semibold text-[#93C5FD]">Junior Security Analyst · Cyient Ltd — India</h3>
+            <p class="text-[#93C5FD]">Aug 2018 – Mar 2023</p>
+            <ul class="list-disc ml-6 mt-3 space-y-2">
+              <li>Monitored SIEM telemetry; improved response times by 30% via anomaly‑based triage and enrichment.</li>
+              <li>Led incident handling; coordinated with network/security teams on firewalls, IDS/IPS, and malware defenses.</li>
+              <li>Supported vuln management cycles and ISO 27001/NIST control adherence.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Projects -->
+    <section id="projects" class="section">
+      <div class="container-std">
+        <h2 class="text-3xl md:text-4xl font-bold text-[#93C5FD] mb-6">Projects</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 grid-equal">
+          <div class="card p-6">
+            <h3 class="text-xl font-semibold text-[#93C5FD]">SOC Automation & SIEM</h3>
+            <p class="mt-2">Virtual SOC with Splunk/ELK: ingestion, correlation rules, dashboards, SOAR playbooks.</p>
+            <p class="mt-2 text-sm text-gray-300"><strong>Tech:</strong> Splunk, SOAR, Python, Threat Intel</p>
+            <a href="https://github.com/naveen-gandla/soc-automation" class="inline-block mt-3 btn-blue btn-ghost-blue px-4 py-2">View Repo</a>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-xl font-semibold text-[#93C5FD]">Cloud Hardening Blueprints</h3>
+            <p class="mt-2">CIS‑aligned baselines for AWS/Azure; CI checks and drift detection.</p>
+            <p class="mt-2 text-sm text-gray-300"><strong>Tech:</strong> AWS, Azure, GCP, CIS</p>
+            <a href="https://github.com/naveen-gandla/cloud-blueprints" class="inline-block mt-3 btn-blue btn-ghost-blue px-4 py-2">View Docs</a>
+          </div>
+          <div class="card p-6">
+            <h3 class="text-xl font-semibold text-[#93C5FD]">Incident Response Drills</h3>
+            <p class="mt-2">Ransomware/phishing simulations; ATT&CK‑mapped playbooks and scripts.</p>
+            <p class="mt-2 text-sm text-gray-300"><strong>Tech:</strong> Splunk, PowerShell, MITRE ATT&CK</p>
+            <a href="https://github.com/naveen-gandla/ir-drills" class="inline-block mt-3 btn-blue btn-ghost-blue px-4 py-2">View Playbooks</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Certifications -->
+    <section id="certifications" class="section bg-[#0b1220]">
+      <div class="container-std">
+        <h2 class="text-3xl md:text-4xl font-bold text-[#93C5FD] mb-6">Certifications</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            
+            <tbody class="divide-y divide-[#1f3b6b]">
+              <tr><td class="p-4">CompTIA Security+</td></tr>
+              <tr><td class="p-4">(ISC)² Certified in Cybersecurity (CC)</td></tr>
+              <tr><td class="p-4">Google Cybersecurity Specialization</td></tr>
+              <tr><td class="p-4">Splunk Fundamentals</td></tr>
+              <tr><td class="p-4">AWS Cloud Practitioner</td></tr>
+              <tr><td class="p-4">Azure Fundamentals</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="section">
+      <div class="container-std text-center">
+        <h2 class="text-3xl md:text-4xl font-bold text-[#93C5FD] mb-6">Connect with Me</h2>
+        <p class="text-lg text-gray-200">Interested in cybersecurity opportunities, collaborations, or mentorship? Let's connect!</p>
+        <div class="mt-6 flex flex-wrap justify-center gap-3">
+          <a href="mailto:naveengandla21@gmail.com" class="px-4 py-2 btn-blue" aria-label="Email Naveen Gandla">Email</a>
+          <a href="https://linkedin.com/in/naveen-gandla" class="px-4 py-2 btn-blue">LinkedIn</a>
+          <a href="https://github.com/naveen-gandla" class="px-4 py-2 btn-blue">GitHub</a>
+          <a href="https://naveen-gandla.github.io/resume.pdf" class="px-4 py-2 btn-blue">Resume</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-[#0b1220] text-center py-6 border-t border-[#1f3b6b]">
+      <p class="text-gray-400">© 2025 Naveen Gandla. All rights reserved.</p>
+    </footer>
+  </div>
+
+  <!-- Scripts -->
+  <script>
+    // Mobile sidebar toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    if (menuBtn) menuBtn.addEventListener('click', () => sidebar.classList.toggle('active'));
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(a => a.addEventListener('click', (e)=>{
+      const href = a.getAttribute('href');
+      if (href.length > 1) { e.preventDefault(); document.querySelector(href).scrollIntoView({behavior:'smooth'}); sidebar.classList.remove('active'); }
+    }));
+
+    // Reveal animations
+    if (window.gsap) {
+      gsap.from('.card', { opacity:0, y:24, duration:.8, stagger:.15 });
+      gsap.from('.metric-card', { opacity:0, scale:.9, duration:.8, stagger:.1 });
+    }
+
+    // Sanity tests
+    console.assert(typeof d3 !== 'undefined', 'D3 failed to load');
+    console.assert(typeof gsap !== 'undefined', 'GSAP failed to load');
+
+    // keep hero content clear of left-side nav; compute dynamic left padding
+    function updateNavGuard(){
+      const nav = document.getElementById('sidebar');
+      const guard = nav ? Math.ceil(nav.getBoundingClientRect().width) + 24 : 0; // 24px breathing room
+      document.documentElement.style.setProperty('--navGuard', guard + 'px');
+    }
+    updateNavGuard();
+    window.addEventListener('resize', updateNavGuard);
+
+    // Equalize card heights across grids for a clean, professional structure
+    function equalizeGridHeights(containerSel, itemSel){
+      document.querySelectorAll(containerSel).forEach(grid=>{
+        const items = grid.querySelectorAll(itemSel);
+        items.forEach(el=> el.style.minHeight = 'auto');
+        let maxH = 0; items.forEach(el=> maxH = Math.max(maxH, el.offsetHeight));
+        items.forEach(el=> el.style.minHeight = maxH + 'px');
+      });
+    }
+    function runEqualize(){
+      equalizeGridHeights('#metrics .grid', '.metric-card');
+      equalizeGridHeights('#skills .grid', '.card');
+      equalizeGridHeights('#projects .grid', '.card');
+    }
+    runEqualize();
+    let eqTO; window.addEventListener('resize', ()=>{ clearTimeout(eqTO); eqTO = setTimeout(runEqualize, 120); });
+
+    // structure tests
+    console.assert(document.querySelectorAll('#metrics .metric-card').length === 4, 'Expected 4 metric cards');
+    console.assert(!!document.getElementById('skills'), 'Skills section missing');
+    console.assert(!!document.getElementById('projects'), 'Projects section missing');
+    console.assert(document.querySelectorAll('#about .about-identity').length === 1, 'About identity duplicated');
+    console.assert(!!document.getElementById('mitre-hero'), 'mitre-hero missing');
+  </script>
+
+  <script>
+    /* ===================== MATRIX BINARY RAIN ===================== */
+    const matrixCanvas = document.getElementById('matrixCanvas');
+    const mctx = matrixCanvas.getContext('2d');
+    function sizeMatrix() { matrixCanvas.width = window.innerWidth; matrixCanvas.height = window.innerHeight; }
+    sizeMatrix();
+    const binaryChars = '01';
+    let fontSize = 16; // thicker look
+    let columns = Math.floor(matrixCanvas.width / fontSize);
+    let drops = Array(columns).fill(0);
+
+    // Helpers for radar interaction
+    function angDiff(a,b){ let d = (a - b + Math.PI) % (2*Math.PI); if (d > Math.PI) d -= 2*Math.PI; return Math.abs(d); }
+
+    function drawArrow(ctx, x1, y1, x2, y2, alpha = 0.9) {
+      // draw glowing blue dashed line + arrow head
+      const headLen = 14; // length of head in px
+      const headWid = 8;  // half-width of head
+      const ang = Math.atan2(y2 - y1, x2 - x1);
+
+      ctx.save();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = `rgba(0,123,255,${alpha})`;
+      ctx.shadowColor = `rgba(0,123,255,${alpha})`;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(x1, y1);
+      ctx.lineTo(x2, y2);
+      ctx.stroke();
+
+      // Arrow head at end
+      const bx = x2 - headLen * Math.cos(ang);
+      const by = y2 - headLen * Math.sin(ang);
+      const lx = bx + headWid * Math.sin(ang);
+      const ly = by - headWid * Math.cos(ang);
+      const rx = bx - headWid * Math.sin(ang);
+      const ry = by + headWid * Math.cos(ang);
+      ctx.fillStyle = `rgba(0,123,255,${Math.min(1, alpha + 0.05)})`;
+      ctx.beginPath();
+      ctx.moveTo(x2, y2);
+      ctx.lineTo(lx, ly);
+      ctx.lineTo(rx, ry);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function drawMatrix() {
+      // slightly stronger trail for contrast
+      mctx.fillStyle = 'rgba(0,0,0,0.1)';
+      mctx.fillRect(0, 0, matrixCanvas.width, matrixCanvas.height);
+
+      const BLUE = getComputedStyle(document.documentElement).getPropertyValue('--blueLight') || '#66B2FF';
+      const RED  = '#FF3B3B';
+      mctx.font = fontSize + 'px monospace';
+      mctx.shadowBlur = 3; // subtle glow on active glyphs
+
+      let highlighted = 0; // limit to ~3-4 red glyphs per frame
+      const MAX_HILITES = 4;
+      const EPS = 0.06; // radians window around the sweep line
+      const rs = window.radarState || { ready:false };
+
+      for (let i = 0; i < drops.length; i++) {
+        const x = i * fontSize;
+        const y = drops[i] * fontSize;
+
+        // Determine color per glyph
+        let useRed = false;
+        if (rs.ready && highlighted < MAX_HILITES) {
+          const dx = x - rs.cx, dy = y - rs.cy;
+          const dist = Math.hypot(dx, dy);
+          if (dist <= (rs.r || 0)) {
+            const theta = Math.atan2(dy, dx);
+            const delta = angDiff(theta, rs.angle || 0);
+            if (delta < EPS) useRed = true;
+          }
+        }
+
+        if (useRed) { highlighted++; mctx.fillStyle = RED; mctx.shadowColor = RED; }
+        else { mctx.fillStyle = BLUE; mctx.shadowColor = BLUE; }
+
+        const text = binaryChars[Math.floor(Math.random() * binaryChars.length)];
+        mctx.fillText(text, x, y);
+
+        if (drops[i] * fontSize > matrixCanvas.height && Math.random() > 0.995) drops[i] = 0;
+        if (tick % RAIN_SLOW_STEPS === 0) drops[i]++;
+      }
+
+      // Draw animated dashed blue connector arrow BETWEEN radar and MITRE (mid-segment, offset to the SIDE of radar)
+      const rs2 = window.radarState;
+      if (rs2 && rs2.ready && Number.isFinite(rs2.mx) && Number.isFinite(rs2.my)) {
+        const vx = rs2.mx - rs2.cx, vy = rs2.my - rs2.cy;
+        const vlen = Math.hypot(vx, vy) || 1;
+        const ux = vx / vlen, uy = vy / vlen;          // unit vector from radar->mitre
+        const px = -uy, py = ux;                       // perpendicular unit (to shift arrow to the side)
+        const gap = 16;                                // pull-back from each widget a bit more to avoid overlap
+        const sr = rs2.r || 0;
+        const mr = rs2.mr || 0;
+
+        // endpoints along the connecting line (outside both circles)
+        const ax = rs2.cx + (sr + gap) * ux, ay = rs2.cy + (sr + gap) * uy; // just outside radar edge
+        const bx = rs2.mx - (mr + gap) * ux, by = rs2.my - (mr + gap) * uy; // just before MITRE edge
+
+        // CENTER the arrow strictly BETWEEN the two widgets (no side offset)
+        const segLen = Math.hypot(bx - ax, by - ay);
+        const L = Math.max(90, Math.min(160, segLen * 0.60)); // longer but stays between edges
+        const mxp = (ax + bx) / 2, myp = (ay + by) / 2;       // midpoint
+        let sx2 = mxp - (L/2) * ux, sy2 = myp - (L/2) * uy;
+        let ex2 = mxp + (L/2) * ux, ey2 = myp + (L/2) * uy;
+
+        // Tiny clearance from each circle edge
+        const edgePad = 6;
+        const sxDistA = Math.hypot(sx2 - rs2.cx, sy2 - rs2.cy);
+        const exDistB = Math.hypot(ex2 - rs2.mx, ey2 - rs2.my);
+        if (sxDistA < sr + edgePad) { const d = (sr + edgePad - sxDistA); sx2 -= ux * d; sy2 -= uy * d; }
+        if (exDistB < mr + edgePad) { const d = (mr + edgePad - exDistB); ex2 += ux * d; ey2 += uy * d; }
+
+        // dashed motion + pulsing alpha
+        const alpha = 0.6 + 0.4 * Math.sin(tick * 0.12);
+        mctx.setLineDash([10, 6]);
+        mctx.lineDashOffset = arrowDashOffset;
+        drawArrow(mctx, sx2, sy2, ex2, ey2, alpha);
+        mctx.setLineDash([]);
+
+        // quick checks
+        console.assert(L > 0 && Number.isFinite(L), 'Arrow length invalid');
+        console.assert(Math.hypot(sx2 - rs2.cx, sy2 - rs2.cy) > sr, 'Arrow start intrudes radar');
+        console.assert(Math.hypot(ex2 - rs2.mx, ey2 - rs2.my) > mr, 'Arrow end intrudes MITRE');
+        console.assert(Number.isFinite(rs2.mr), 'MITRE radius missing');
+      }
+
+      // reset glow
+      mctx.shadowBlur = 0; mctx.shadowColor = 'transparent';
+    }
+
+    let arrowDashOffset = 0; let tick = 0; const RAIN_SLOW_STEPS = 6; let matrixInterval = setInterval(() => { drawMatrix(); tick++; arrowDashOffset -= 1.1; }, 150);
+    // tests for slow mode
+    console.assert(RAIN_SLOW_STEPS >= 2, 'RAIN_SLOW_STEPS should be ≥ 2 for very slow effect');
+    console.assert(typeof matrixInterval !== 'undefined', 'Matrix interval not set');
+
+    // Resize handling (debounced)
+    let resizeTO;
+    window.addEventListener('resize', ()=>{
+      clearTimeout(resizeTO);
+      resizeTO = setTimeout(()=>{
+        sizeMatrix();
+        fontSize = 16; columns = Math.floor(matrixCanvas.width / fontSize); drops = Array(columns).fill(0);
+      }, 150);
+    });
+  </script>
+
+  <script>
+    /* ===================== SOC RADAR (Mini, left of CTA) ===================== */
+    const radarMini = document.getElementById('radarMini');
+    const rctx = radarMini.getContext('2d');
+    const DPR = Math.max(1, window.devicePixelRatio || 1);
+
+    // Global state shared with matrix for red-highlight behavior
+    window.radarState = window.radarState || { angle: 0, cx: 0, cy: 0, r: 0, ready: false };
+
+    function updateRadarStateGeometry(){
+      const rRect = radarMini.getBoundingClientRect();
+      const mRect = matrixCanvas.getBoundingClientRect();
+      window.radarState.cx = rRect.left - mRect.left + rRect.width/2;
+      window.radarState.cy = rRect.top  - mRect.top  + rRect.height/2;
+      window.radarState.r  = Math.min(rRect.width, rRect.height)/2 - 12;
+      // also compute MITRE center
+      const mitre = document.getElementById('mitre-hero');
+      if (mitre) {
+        const mi = mitre.getBoundingClientRect();
+        window.radarState.mx = mi.left - mRect.left + mi.width/2;
+        window.radarState.my = mi.top  - mRect.top  + mi.height/2;
+      window.radarState.mr = Math.min(mi.width, mi.height) / 2;
+      }
+      window.radarState.ready = true;
+    }
+
+    function sizeMini() {
+      const cssW = radarMini.clientWidth, cssH = radarMini.clientHeight;
+      radarMini.width = Math.floor(cssW * DPR);
+      radarMini.height = Math.floor(cssH * DPR);
+      rctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+      updateRadarStateGeometry();
+    }
+    sizeMini();
+
+    let center = { x: radarMini.clientWidth/2, y: radarMini.clientHeight/2 };
+    let radius = Math.min(center.x, center.y) - 12;
+    let angle = 0; // slower sweep
+    const blips = [];
+
+    function drawRadar() {
+      rctx.clearRect(0,0,radarMini.clientWidth,radarMini.clientHeight);
+      // transparent rings (numbers show through)
+      for (let i=1;i<=3;i++) {
+        rctx.beginPath();
+        rctx.arc(center.x, center.y, (radius/3)*i, 0, Math.PI*2);
+        rctx.strokeStyle = 'rgba(102, 178, 255, 0.35)';
+        rctx.lineWidth = 2; rctx.stroke();
+      }
+      // slower sweep
+      angle += 0.006;
+      const sx = center.x + radius * Math.cos(angle);
+      const sy = center.y + radius * Math.sin(angle);
+      rctx.beginPath(); rctx.moveTo(center.x, center.y); rctx.lineTo(sx, sy);
+      rctx.strokeStyle = 'rgba(102,178,255,0.55)'; rctx.lineWidth = 3; rctx.stroke();
+
+      // expose latest angle to matrix highlighter
+      window.radarState.angle = angle;
+
+      // blips
+      if (Math.random() < 0.03) blips.push({ a: Math.random()*Math.PI*2, r: Math.random()*radius, o: 1 });
+      for (let i=blips.length-1;i>=0;i--) {
+        const b = blips[i];
+        const x = center.x + b.r * Math.cos(b.a);
+        const y = center.y + b.r * Math.sin(b.a);
+        rctx.beginPath(); rctx.arc(x,y,5,0,Math.PI*2);
+        rctx.fillStyle = `rgba(102,178,255,${b.o})`; rctx.fill();
+        b.o -= 0.0105; if (b.o <= 0) blips.splice(i,1);
+      }
+      requestAnimationFrame(drawRadar);
+    }
+    requestAnimationFrame(drawRadar);
+
+    // keep crisp on resize & track geometry
+    window.addEventListener('resize', ()=>{ sizeMini(); center = { x: radarMini.clientWidth/2, y: radarMini.clientHeight/2 }; radius = Math.min(center.x, center.y) - 12; });
+    window.addEventListener('scroll', updateRadarStateGeometry);
+
+    // sanity: radarState becomes ready
+    setTimeout(()=>{ console.assert(window.radarState.ready, 'radarState geometry was not computed'); }, 1000);
+  </script>
+
+  <!-- ===================== MITRE CONFIG (EASY TO EDIT LATER) ===================== -->
+  <script>
+    // TODO: Paste your exact GitHub URLs here later.
+    // Use either the node name (e.g., 'Execution') or technique ID (e.g., 'T1566') as the key.
+    const DEFAULT_GITHUB = 'https://github.com/naveen-gandla';
+    const MITRE_LINKS = {
+      // Tactics
+      'Initial Access': 'https://github.com/naveen-gandla/ir-drills',
+      'Execution': 'https://github.com/naveen-gandla/soc-automation',
+      'Persistence': 'https://github.com/naveen-gandla/cloud-blueprints',
+      // Techniques (fill in with specific file/dir links when ready)
+      'T1566': '', // Phishing — TODO add exact repo/file URL
+      'T1189': '', // Drive-by Compromise — TODO add exact URL
+      'T1059.001': '', // PowerShell — TODO add exact URL
+      'T1059': '', // Cmd/Scripting — TODO add exact URL
+      'T1003': '', // Credential Dumping — TODO add exact URL
+      'T1547.001': '' // Run Keys — TODO add exact URL
+    };
+
+    // Basic tests (won't break page)
+    console.assert(!!MITRE_LINKS['Initial Access'], 'MITRE_LINKS missing default tactic link');
+  </script>
+
+  <script>
+  /* ===================== MITRE ATT&CK Radial (clickable) ===================== */
+  (function(){
+    const container = document.getElementById('mitre-hero');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const size = Math.min(container.clientWidth, container.clientHeight) || 280;
+    const radius = size/2 - 30;
+    const radial = (a, r) => [Math.cos(a) * r, Math.sin(a) * r];
+
+    const svg = d3.select(container)
+      .append('svg').attr('width', size).attr('height', size)
+      .append('g').attr('transform', `translate(${size/2},${size/2})`);
+
+    const data = { name: 'ATT&CK', children: [
+      { name: 'Initial Access', id: 'TA0001', children: [
+        { name: 'Phishing (T1566)', id: 'T1566' },
+        { name: 'Drive-by (T1189)', id: 'T1189' }
+      ]},
+      { name: 'Execution', id: 'TA0002', children: [
+        { name: 'PowerShell (T1059.001)', id: 'T1059.001' },
+        { name: 'Cmd/Scripting (T1059)', id: 'T1059' }
+      ]},
+      { name: 'Persistence', id: 'TA0003', children: [
+        { name: 'Cred Dump (T1003)', id: 'T1003' },
+        { name: 'Run Keys (T1547.001)', id: 'T1547.001' }
+      ]}
+    ]};
+
+    const root = d3.hierarchy(data).sum(d=>1);
+    d3.tree().size([2*Math.PI, radius])(root);
+
+    const links = root.links();
+    const nodes = root.descendants();
+
+    svg.selectAll('.link').data(links).enter().append('path')
+      .attr('class','link')
+      .attr('fill','none').attr('stroke','#3BA9FF').attr('stroke-width',1.5)
+      .attr('d', d => `M${radial(d.source.x,d.source.y)}C${radial(d.source.x,(d.source.y+d.target.y)/2)} ${radial(d.target.x,(d.source.y+d.target.y)/2)} ${radial(d.target.x,d.target.y)}`);
+
+    const node = svg.selectAll('.node').data(nodes).enter().append('g')
+      .attr('class','node')
+      .attr('transform', d => `translate(${radial(d.x,d.y)})`)
+      .style('cursor','pointer')
+      .on('click', function(event, d){
+        svg.selectAll('circle').attr('stroke','#0B1220').attr('stroke-width',1).attr('r', n => n.children ? 6.5 : 4.5);
+        d3.select(this).select('circle').attr('stroke', '#00A2FF').attr('stroke-width', 3).attr('r', d.children ? 7.5 : 6);
+        const key1 = d.data.id; const key2 = d.data.name;
+        const url = (typeof MITRE_LINKS !== 'undefined' && (MITRE_LINKS[key1] || MITRE_LINKS[key2])) || (typeof DEFAULT_GITHUB !== 'undefined' ? DEFAULT_GITHUB : 'https://github.com/');
+        window.open(url, '_blank');
+      });
+
+    node.append('circle').attr('r', d => d.children ? 6.5 : 4.5)
+      .attr('fill', d => d.children ? '#93C5FD' : '#FF4D4D')
+      .attr('stroke','#0B1220').attr('stroke-width',1);
+
+    node.append('text').attr('dy','0.31em')
+      .attr('x', d => d.x < Math.PI ? 8 : -8)
+      .attr('text-anchor', d => d.x < Math.PI ? 'start' : 'end')
+      .text(d => d.data.name)
+      .attr('font-family','Fira Code')
+      .attr('font-size','11px')
+      .attr('fill','#CFE5FF')
+      .attr('stroke','#000')
+      .attr('stroke-width',0.6)
+      .attr('stroke-opacity',0.5);
+
+    // basic render test
+    console.assert(nodes.length > 0, 'MITRE nodes did not render');
+  })();
+</script>
+</body>
+</html>
